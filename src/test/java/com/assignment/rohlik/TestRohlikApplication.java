@@ -1,4 +1,4 @@
-package com.assigment.rohlik;
+package com.assignment.rohlik;
 
 import org.springframework.boot.SpringApplication;
 
