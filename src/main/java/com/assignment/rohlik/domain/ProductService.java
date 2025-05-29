@@ -1,8 +1,8 @@
-package com.assignment.rohlik.service;
+package com.assignment.rohlik.domain;
 
-import com.assignment.rohlik.model.Product;
-import com.assignment.rohlik.repository.OrderItemRepository;
-import com.assignment.rohlik.repository.ProductRepository;
+import com.assignment.rohlik.domain.model.Product;
+import com.assignment.rohlik.infrastructure.persistence.OrderItemRepository;
+import com.assignment.rohlik.infrastructure.persistence.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

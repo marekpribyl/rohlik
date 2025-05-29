@@ -1,4 +1,4 @@
-package com.assignment.rohlik.model;
+package com.assignment.rohlik.domain.model;
 
 public enum OrderStatus {
     CREATED,

@@ -1,5 +1,7 @@
-package com.assignment.rohlik.exception;
+package com.assignment.rohlik.api;
 
+import com.assignment.rohlik.domain.InsufficientStockException;
+import com.assignment.rohlik.domain.InvalidOrderStateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

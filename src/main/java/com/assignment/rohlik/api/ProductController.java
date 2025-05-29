@@ -1,8 +1,7 @@
-package com.assignment.rohlik.controller;
+package com.assignment.rohlik.api;
 
-import com.assignment.rohlik.dto.ProductRequest;
-import com.assignment.rohlik.model.Product;
-import com.assignment.rohlik.service.ProductService;
+import com.assignment.rohlik.domain.model.Product;
+import com.assignment.rohlik.domain.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

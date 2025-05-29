@@ -1,6 +1,6 @@
-package com.assignment.rohlik.dto;
+package com.assignment.rohlik.api;
 
-import com.assignment.rohlik.model.Product;
+import com.assignment.rohlik.domain.model.Product;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

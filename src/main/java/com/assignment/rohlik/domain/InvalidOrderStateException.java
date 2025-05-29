@@ -1,7 +1,7 @@
-package com.assignment.rohlik.exception;
+package com.assignment.rohlik.domain;
 
-import com.assignment.rohlik.model.Order;
-import com.assignment.rohlik.model.OrderStatus;
+import com.assignment.rohlik.domain.model.Order;
+import com.assignment.rohlik.domain.model.OrderStatus;
 
 public class InvalidOrderStateException extends IllegalStateException {
     

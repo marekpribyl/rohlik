@@ -1,6 +1,6 @@
-package com.assignment.rohlik.repository;
+package com.assignment.rohlik.infrastructure.persistence;
 
-import com.assignment.rohlik.model.OrderItem;
+import com.assignment.rohlik.domain.model.OrderItem;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;

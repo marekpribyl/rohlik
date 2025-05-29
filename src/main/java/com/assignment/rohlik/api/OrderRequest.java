@@ -1,4 +1,4 @@
-package com.assignment.rohlik.dto;
+package com.assignment.rohlik.api;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;

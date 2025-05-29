@@ -1,6 +1,6 @@
-package com.assignment.rohlik.exception;
+package com.assignment.rohlik.domain;
 
-import com.assignment.rohlik.model.Product;
+import com.assignment.rohlik.domain.model.Product;
 
 import java.util.List;
 import java.util.stream.Collectors;
