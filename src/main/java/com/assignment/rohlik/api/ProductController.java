@@ -14,8 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/products")
-public class ProductController {
+public class ProductController implements ProductsApi {
 
     private final ProductService productService;
     private final ProductMapper productMapper;

@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/orders")
-public class OrderController {
+public class OrderController implements OrdersApi {
 
     private final OrderService orderService;
     private final OrderMapper orderMapper;
