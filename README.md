@@ -43,3 +43,9 @@ Scenario:
 - Create OrderRequest DTO with validation
 - Update OrderController to use validation
 12. Test the implementation
+
+### Separate Model for the API
+
+Junie prompt:
+
+    create separate model for the API, and map to it from domain model. Implement it using Java records. Use MapStruct library for mapping

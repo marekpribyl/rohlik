@@ -1,7 +1,10 @@
 package com.assignment.rohlik.api;
 
-import com.assignment.rohlik.domain.model.Product;
+import com.assignment.rohlik.api.mapper.ProductMapper;
+import com.assignment.rohlik.api.model.ProductRecord;
+import com.assignment.rohlik.api.model.ProductRequestRecord;
 import com.assignment.rohlik.domain.ProductService;
+import com.assignment.rohlik.domain.model.Product;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,37 +18,44 @@ import reactor.core.publisher.Mono;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductMapper productMapper;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductMapper productMapper) {
         this.productService = productService;
+        this.productMapper = productMapper;
     }
 
     @GetMapping
-    public Flux<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public Flux<ProductRecord> getAllProducts() {
+        return productService.getAllProducts()
+                .map(productMapper::toProductRecord);
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Product>> getProductById(@PathVariable Long id) {
+    public Mono<ResponseEntity<ProductRecord>> getProductById(@PathVariable Long id) {
         return productService.getProductById(id)
+                .map(productMapper::toProductRecord)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Product> createProduct(@Valid @RequestBody ProductRequest productRequest) {
-        return productService.createProduct(productRequest.toProduct());
+    public Mono<ProductRecord> createProduct(@Valid @RequestBody ProductRequestRecord productRequestRecord) {
+        Product product = productMapper.toProduct(productRequestRecord);
+        return productService.createProduct(product)
+                .map(productMapper::toProductRecord);
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseEntity<Product>> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest productRequest) {
+    public Mono<ResponseEntity<ProductRecord>> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestRecord productRequestRecord) {
         return productService.getProductById(id)
                 .flatMap(existingProduct -> {
-                    productRequest.updateProduct(existingProduct);
+                    productMapper.updateProductFromRequest(productRequestRecord, existingProduct);
                     return productService.updateProduct(id, existingProduct);
                 })
+                .map(productMapper::toProductRecord)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
