@@ -80,12 +80,14 @@ public interface ProductsApi {
 
     @Operation(summary = "Update stock of the product by the provided quantity", description = "Positive value to increase the quantity, negative value to decrease it. Zero has no effect")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Stock successfully updated, returns the new quantity",
+            @ApiResponse(responseCode = "200", description = "Stock successfully updated, returns the Product",
                     content = @Content(schema = @Schema(implementation = ProductDto.class))),
             @ApiResponse(responseCode = "400", description = "Provided negative quantity is more than current stock quantity")
     })
     @PutMapping("/{sku}/inventory")
-    Mono<ResponseEntity<Integer>> updateStock(
+    Mono<ResponseEntity<ProductDto>> updateStock(
+            @Parameter(description = "SKU of the product to update", required = true)
+            @PathVariable String sku,
             @Parameter(description = "Product quantity change (positive or negative)", example = "10", required = true)
             @RequestBody Integer quantityChange);
 

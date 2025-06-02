@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,9 +24,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleInsufficientStockException(InsufficientStockException ex) {
         LOG.error("Insufficient stock for products: {}", ex.getProductsWithInsufficientStock());
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Bad Request");
         body.put("message", ex.getMessage());
         body.put("products", ex.getProductsWithInsufficientStock().stream()
                 .map(p -> Map.of(
@@ -43,9 +39,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleInvalidOrderStateException(InvalidOrderStateException ex) {
         LOG.error("Invalid order state: {}", ex.getOrder());
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("error", "Conflict");
         body.put("message", ex.getMessage());
         body.put("orderId", ex.getOrder().getId());
         body.put("orderStatus", ex.getOrder().getStatus());
@@ -60,9 +53,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleIllegalArgumentException(IllegalArgumentException ex) {
         LOG.error("Invalid argument: {}", ex.getMessage());
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Bad Request");
         body.put("message", ex.getMessage());
 
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body));
@@ -72,9 +62,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleIllegalStateException(IllegalStateException ex) {
         LOG.error("Invalid state: {}", ex.getMessage());
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.CONFLICT.value());
-        body.put("error", "Conflict");
         body.put("message", ex.getMessage());
 
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
@@ -84,9 +71,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleValidationException(WebExchangeBindException ex) {
         LOG.error("Validation error: {}", ex.getMessage());
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Validation Error");
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> 
@@ -101,9 +85,6 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<Map<String, Object>>> handleGenericException(Exception ex) {
         LOG.error("Unexpected error: {}", ex.getMessage(), ex);
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", "Internal Server Error");
         body.put("message", "An unexpected error occurred");
 
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body));

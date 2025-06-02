@@ -97,4 +97,24 @@ public class Product {
         return stockQuantity - reservedQuantity;
     }
 
+    public boolean hasReservedQuantity() {
+        return reservedQuantity > 0;
+    }
+
+    public Product updateNameAndPrice(String name, BigDecimal price) {
+        this.name = name;
+        this.price = price;
+        return this;
+    }
+
+    public Product updateStockQuantity(int delta) {
+        int newQuantity = stockQuantity + delta;
+        if (hasReservedQuantity() && newQuantity < reservedQuantity) {
+            throw new IllegalArgumentException("There is reserved quantity of [%d] items, cannot decrease stock by [%d] items".formatted(reservedQuantity, delta));
+        }
+        this.stockQuantity = Math.max(newQuantity, 0);
+
+        return this;
+    }
+
 }
