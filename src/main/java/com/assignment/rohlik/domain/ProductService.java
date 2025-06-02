@@ -44,7 +44,6 @@ public class ProductService {
                 .flatMap(existingProduct -> {
                     existingProduct.setName(product.getName());
                     existingProduct.setPrice(product.getPrice());
-                    existingProduct.setStockQuantity(product.getStockQuantity());
                     return productRepository.save(existingProduct);
                 });
     }

@@ -32,8 +32,7 @@ public class GlobalExceptionHandler {
         body.put("products", ex.getProductsWithInsufficientStock().stream()
                 .map(p -> Map.of(
                     "id", p.getId(),
-                    "name", p.getName(),
-                    "stockQuantity", p.getStockQuantity()
+                    "name", p.getName()
                 ))
                 .collect(Collectors.toList()));
 

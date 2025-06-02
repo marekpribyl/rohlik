@@ -35,7 +35,7 @@ public class ProductController implements ProductsApi {
     @GetMapping("/{sku}")
     public Mono<ResponseEntity<ProductDto>> getProductBySku(@PathVariable String sku) {
         return productService.getProductBySku(sku)
-                .map(productMapper::toProductRecord)
+                .map(productMapper::toApi)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -43,19 +43,19 @@ public class ProductController implements ProductsApi {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ProductDto> createProduct(@Valid @RequestBody NewProductDto productRequestRecord) {
-        Product product = productMapper.toProduct(productRequestRecord);
+        Product product = productMapper.fromApi(productRequestRecord);
         return productService.createProduct(product)
-                .map(productMapper::toProductRecord);
+                .map(productMapper::toApi);
     }
 
     @PutMapping("/{sku}")
     public Mono<ResponseEntity<ProductDto>> updateProduct(@PathVariable String sku, @Valid @RequestBody UpdateProductDto productRequestRecord) {
         return productService.getProductBySku(sku)
                 .flatMap(existingProduct -> {
-                    productMapper.updateProductFromRequest(productRequestRecord, existingProduct);
+                    productMapper.updateProduct(productRequestRecord, existingProduct);
                     return productService.updateProduct(existingProduct.getId(), existingProduct);
                 })
-                .map(productMapper::toProductRecord)
+                .map(productMapper::toApi)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

@@ -100,7 +100,7 @@ public class OrderService {
                     Integer quantity = entry.getValue();
 
                     return productRepository.findById(productId)
-                            .filter(product -> product.getStockQuantity() >= quantity)
+                            .filter(product -> product.getAvailableQuantity() >= quantity)
                             .switchIfEmpty(Mono.error(new IllegalArgumentException("Product not found or not enough stock: " + productId)));
                 })
                 .collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class OrderService {
         return Flux.concat(productMonos)
                 .collectList()
                 .map(products -> products.stream()
-                        .filter(product -> product.getStockQuantity() < productQuantities.get(product.getId()))
+                        .filter(product -> product.getAvailableQuantity() < productQuantities.get(product.getId()))
                         .collect(Collectors.toList()));
     }
 

@@ -2,33 +2,31 @@ package com.assignment.rohlik.api.mapper;
 
 import com.assignment.rohlik.api.model.NewProductDto;
 import com.assignment.rohlik.api.model.ProductDto;
+import com.assignment.rohlik.api.model.StockInfoDto;
 import com.assignment.rohlik.api.model.UpdateProductDto;
 import com.assignment.rohlik.domain.model.Product;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-/**
- * Mapper for converting between Product entity and ProductRecord/ProductRequestRecord.
- */
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+
+    @Mapping(target = "stockInfo", source = "product", qualifiedByName = "toStockInfoDto")
+    ProductDto toApi(Product product);
+
+    @Mapping(target = "stockQuantity", source = "initialStockQuantity")
+    Product fromApi(NewProductDto productRequestRecord);
     
-    /**
-     * Convert Product entity to ProductRecord.
-     */
-    ProductDto toProductRecord(Product product);
-    
-    /**
-     * Convert ProductRequestRecord to Product entity.
-     */
-    Product toProduct(NewProductDto productRequestRecord);
-    
-    /**
-     * Update Product entity from ProductRequestRecord.
-     */
-    void updateProductFromRequest(UpdateProductDto productRequestRecord, @MappingTarget Product product);
+    void updateProduct(UpdateProductDto productRequestRecord, @MappingTarget Product product);
+
+    @Named("toStockInfoDto")
+    default StockInfoDto toStockInfoDto(Product product) {
+        return new StockInfoDto(product.getStockQuantity(), product.getAvailableQuantity());
+    }
 
 }

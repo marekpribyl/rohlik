@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public interface ProductRepository extends ReactiveCrudRepository<Product, Long> {
 
     @Modifying
-    @Query("UPDATE products SET stock_quantity = stock_quantity - :quantity WHERE id = :id AND stock_quantity >= :quantity")
+    @Query("UPDATE products SET stock_quantity = MAX(stock_quantity - :quantity, 0) WHERE id = :id AND stock_quantity >= :quantity")
     Mono<Integer> decreaseStock(Long id, Integer quantity);
 
     @Modifying

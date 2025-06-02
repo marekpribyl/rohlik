@@ -22,7 +22,7 @@ public record ProductDto(
     @Schema(description = "Product's stock status")
     @NotNull(message = "Stock quantity is required")
     @Min(value = 0, message = "Stock quantity must be greater than or equal to 0")
-    StockInfo stockInfo,
+    StockInfoDto stockInfo,
 
     @Schema(description = "Price per unit", example = "1.99")
     @NotNull(message = "Price is required")

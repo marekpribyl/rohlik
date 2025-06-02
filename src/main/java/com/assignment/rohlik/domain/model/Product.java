@@ -23,7 +23,10 @@ public class Product {
     private String name;
 
     @Column("stock_quantity")
-    private Integer stockQuantity;
+    private int stockQuantity;
+
+    @Column("reserved_quantity")
+    private int reservedQuantity;
 
     @Column("price")
     private BigDecimal price;
@@ -32,11 +35,12 @@ public class Product {
     public Product() {
     }
 
-    public Product(String sku, String name, Integer stockQuantity, BigDecimal price) {
+    public Product(String sku, String name, BigDecimal price, int stockQuantity) {
         this.sku = sku;
         this.name = name;
-        this.stockQuantity = stockQuantity;
         this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.reservedQuantity = 0;
     }
 
     // Getters and Setters
@@ -64,12 +68,21 @@ public class Product {
         this.name = name;
     }
 
-    public Integer getStockQuantity() {
+    public int getStockQuantity() {
         return stockQuantity;
     }
 
     public void setStockQuantity(Integer stockQuantity) {
         this.stockQuantity = stockQuantity;
+    }
+
+    public int getReservedQuantity() {
+        return reservedQuantity;
+    }
+
+    public Product setReservedQuantity(final Integer reservedQuantity) {
+        this.reservedQuantity = reservedQuantity;
+        return this;
     }
 
     public BigDecimal getPrice() {
@@ -79,4 +92,9 @@ public class Product {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
+    public int getAvailableQuantity() {
+        return stockQuantity - reservedQuantity;
+    }
+
 }
