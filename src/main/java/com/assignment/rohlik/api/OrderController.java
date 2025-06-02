@@ -1,7 +1,7 @@
 package com.assignment.rohlik.api;
 
 import com.assignment.rohlik.api.mapper.OrderMapper;
-import com.assignment.rohlik.api.model.OrderRecord;
+import com.assignment.rohlik.api.model.OrderDto;
 import com.assignment.rohlik.api.model.OrderRequestRecord;
 import com.assignment.rohlik.domain.OrderService;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class OrderController implements OrdersApi {
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<OrderRecord>> getOrderById(@PathVariable Long id) {
+    public Mono<ResponseEntity<OrderDto>> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
                 .map(orderMapper::toOrderRecord)
                 .map(ResponseEntity::ok)
@@ -33,7 +33,7 @@ public class OrderController implements OrdersApi {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseEntity<OrderRecord>> createOrder(@Valid @RequestBody OrderRequestRecord orderRequestRecord) {
+    public Mono<ResponseEntity<OrderDto>> createOrder(@Valid @RequestBody OrderRequestRecord orderRequestRecord) {
         return orderService.createOrder(orderMapper.toProductQuantitiesMap(orderRequestRecord))
                 .map(orderMapper::toOrderRecord)
                 .map(order -> ResponseEntity.status(HttpStatus.CREATED).body(order))
@@ -48,7 +48,7 @@ public class OrderController implements OrdersApi {
     }
 
     @PostMapping("/{id}/pay")
-    public Mono<ResponseEntity<OrderRecord>> payOrder(@PathVariable Long id) {
+    public Mono<ResponseEntity<OrderDto>> payOrder(@PathVariable Long id) {
         return orderService.payOrder(id)
                 .map(orderMapper::toOrderRecord)
                 .map(ResponseEntity::ok)
@@ -63,7 +63,7 @@ public class OrderController implements OrdersApi {
     }
 
     @PostMapping("/{id}/cancel")
-    public Mono<ResponseEntity<OrderRecord>> cancelOrder(@PathVariable Long id) {
+    public Mono<ResponseEntity<OrderDto>> cancelOrder(@PathVariable Long id) {
         return orderService.cancelOrder(id)
                 .map(orderMapper::toOrderRecord)
                 .map(ResponseEntity::ok)

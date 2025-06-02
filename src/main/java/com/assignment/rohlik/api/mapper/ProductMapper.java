@@ -1,7 +1,8 @@
 package com.assignment.rohlik.api.mapper;
 
-import com.assignment.rohlik.api.model.ProductRecord;
-import com.assignment.rohlik.api.model.ProductRequestRecord;
+import com.assignment.rohlik.api.model.NewProductDto;
+import com.assignment.rohlik.api.model.ProductDto;
+import com.assignment.rohlik.api.model.UpdateProductDto;
 import com.assignment.rohlik.domain.model.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -18,15 +19,16 @@ public interface ProductMapper {
     /**
      * Convert Product entity to ProductRecord.
      */
-    ProductRecord toProductRecord(Product product);
+    ProductDto toProductRecord(Product product);
     
     /**
      * Convert ProductRequestRecord to Product entity.
      */
-    Product toProduct(ProductRequestRecord productRequestRecord);
+    Product toProduct(NewProductDto productRequestRecord);
     
     /**
      * Update Product entity from ProductRequestRecord.
      */
-    void updateProductFromRequest(ProductRequestRecord productRequestRecord, @MappingTarget Product product);
+    void updateProductFromRequest(UpdateProductDto productRequestRecord, @MappingTarget Product product);
+
 }

@@ -11,7 +11,7 @@ import java.util.List;
  * Record representing an order in the API.
  */
 @Schema(description = "Order information including items and status")
-public record OrderRecord(
+public record OrderDto(
     @Schema(description = "Unique identifier of the order", example = "1")
     Long id,
 
@@ -31,7 +31,7 @@ public record OrderRecord(
     LocalDateTime canceledAt,
 
     @Schema(description = "List of items in the order")
-    List<OrderItemRecord> items,
+    List<OrderItemDto> items,
 
     @Schema(description = "Total price of the order", example = "125.50")
     BigDecimal totalPrice

@@ -29,6 +29,10 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
+    public Mono<Product> getProductBySku(String sku) {
+        return productRepository.findBySku(sku);
+    }
+
     @Transactional
     public Mono<Product> createProduct(Product product) {
         return productRepository.save(product);

@@ -9,12 +9,14 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface ProductRepository extends ReactiveCrudRepository<Product, Long> {
-    
+
     @Modifying
     @Query("UPDATE products SET stock_quantity = stock_quantity - :quantity WHERE id = :id AND stock_quantity >= :quantity")
     Mono<Integer> decreaseStock(Long id, Integer quantity);
-    
+
     @Modifying
     @Query("UPDATE products SET stock_quantity = stock_quantity + :quantity WHERE id = :id")
     Mono<Integer> increaseStock(Long id, Integer quantity);
+
+    Mono<Product> findBySku(String sku);
 }
