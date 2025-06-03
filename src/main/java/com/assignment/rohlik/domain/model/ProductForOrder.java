@@ -19,7 +19,7 @@ public class ProductForOrder extends Product {
         return this;
     }
 
-    public ProductForOrder reserveIfPossible() {
+    public ProductForOrder doQuantityReservationIfPossible() {
         if (productIsPresent()) {
             reserve(requestedQuantity);
             return this;

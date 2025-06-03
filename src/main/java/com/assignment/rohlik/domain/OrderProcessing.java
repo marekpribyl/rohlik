@@ -41,7 +41,7 @@ public class OrderProcessing {
     @Transactional
     public Mono<Order> createOrder(Map<String, Integer> items) {
         return productRepository.findForOrder(items)
-                .map(ProductForOrder::reserveIfPossible)
+                .map(ProductForOrder::doQuantityReservationIfPossible)
                 .flatMap(productForOrder -> productRepository
                         .save(productForOrder)
                         .then(Mono.just(productForOrder))
