@@ -1,10 +1,9 @@
 package com.assignment.rohlik.domain;
 
+import com.assignment.rohlik.api.model.NewOrderItemDto;
 import com.assignment.rohlik.domain.model.Order;
-import com.assignment.rohlik.domain.model.OrderItem;
-import com.assignment.rohlik.domain.model.OrderStatus;
 import com.assignment.rohlik.domain.model.Product;
-import com.assignment.rohlik.infrastructure.persistence.OrderItemRepository;
+import com.assignment.rohlik.domain.model.ProductForOrder;
 import com.assignment.rohlik.infrastructure.persistence.OrderRepository;
 import com.assignment.rohlik.infrastructure.persistence.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,75 +20,32 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
-    private final ProductService productService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
-                        ProductRepository productRepository, ProductService productService) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
         this.productRepository = productRepository;
-        this.productService = productService;
-    }
-
-    public Mono<Order> getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .flatMap(this::loadOrderItems);
-    }
-
-    private Mono<Order> loadOrderItems(Order order) {
-        return orderItemRepository.findByOrderId(order.getId())
-                .collectList()
-                .doOnNext(order::setItems)
-                .thenReturn(order);
     }
 
     @Transactional
-    public Mono<Order> createOrder(Map<Long, Integer> productQuantities) {
-        // Check if all products exist and have enough stock
-        return checkProductsAvailability(productQuantities)
-                .flatMap(missingProducts -> {
-                    if (!missingProducts.isEmpty()) {
-                        return Mono.error(new InsufficientStockException(missingProducts));
-                    }
+    public Mono<Order> createOrder(List<NewOrderItemDto> items) {
+        Map<String, Integer> itemsAsMap = items.stream()
+                .collect(Collectors.toMap(
+                        NewOrderItemDto::sku,
+                        NewOrderItemDto::quantity,
+                        Integer::sum
+                ));
 
-                    // Create the order
-                    Order order = new Order();
-                    return orderRepository.save(order)
-                            .flatMap(savedOrder -> {
-                                // Create order items and decrease stock
-                                List<Mono<OrderItem>> orderItemMonos = productQuantities.entrySet().stream()
-                                        .map(entry -> {
-                                            Long productId = entry.getKey();
-                                            Integer quantity = entry.getValue();
-
-                                            return productRepository.findById(productId)
-                                                    .flatMap(product -> {
-                                                        // Decrease stock
-                                                        return productService.decreaseStock(productId, quantity)
-                                                                .flatMap(decreased -> {
-                                                                    if (!decreased) {
-                                                                        return Mono.error(new IllegalStateException("Failed to decrease stock for product: " + product.getName()));
-                                                                    }
-
-                                                                    // Create order item
-                                                                    OrderItem orderItem = new OrderItem(savedOrder.getId(), productId, quantity, product.getPrice());
-                                                                    return orderItemRepository.save(orderItem);
-                                                                });
-                                                    });
-                                        })
-                                        .collect(Collectors.toList());
-
-                                return Flux.concat(orderItemMonos)
-                                        .collectList()
-                                        .flatMap(orderItems -> {
-                                            savedOrder.setItems(orderItems);
-                                            return Mono.just(savedOrder);
-                                        });
-                            });
-                });
+        return productRepository.findForOrder(itemsAsMap)
+                .map(ProductForOrder::reserveIfPossible)
+                .flatMap(productForOrder -> productRepository
+                        .save(productForOrder)
+                        .then(Mono.just(productForOrder))
+                )
+                .collectList()
+                .map(Order::fromProductsForOrder)
+                .flatMap(orderRepository::save);
     }
 
     private Mono<List<Product>> checkProductsAvailability(Map<Long, Integer> productQuantities) {
@@ -114,7 +69,13 @@ public class OrderService {
 
     @Transactional
     public Mono<Order> payOrder(Long id) {
-        return orderRepository.findById(id)
+        //order must be in CREATED state and not expired
+        //remove reserved quantity for each item in the order from inventory
+        //update order status to PAID
+
+        return Mono.error(new UnsupportedOperationException("Not yet implemented"));
+
+        /*return orderRepository.findById(id)
                 .flatMap(order -> {
                     if (order.getStatus() != OrderStatus.CREATED) {
                         return Mono.error(new InvalidOrderStateException(order, OrderStatus.CREATED));
@@ -128,17 +89,23 @@ public class OrderService {
                     return orderRepository.markAsPaid(id, OrderStatus.PAID, now)
                             .flatMap(updated -> {
                                 if (updated > 0) {
-                                    order.markAsPaid();
+                                    order.paid();
                                     return loadOrderItems(order);
                                 }
                                 return Mono.error(new IllegalStateException("Failed to pay order"));
                             });
-                });
+                });*/
     }
 
     @Transactional
     public Mono<Order> cancelOrder(Long id) {
-        return orderRepository.findById(id)
+        //order must be in CREATED state
+        //release reserved quantity for each item in the order from inventory
+        //update order status to CANCELED and set updated_at to current time
+
+        return Mono.error(new UnsupportedOperationException("Not yet implemented"));
+
+        /*return orderRepository.findById(id)
                 .flatMap(order -> {
                     if (order.getStatus() != OrderStatus.CREATED) {
                         return Mono.error(new InvalidOrderStateException(order, OrderStatus.CREATED));
@@ -158,12 +125,18 @@ public class OrderService {
                                 }
                                 return Mono.error(new IllegalStateException("Failed to cancel order"));
                             });
-                });
+                });*/
     }
 
     @Transactional
     public Mono<Void> expireOrders() {
-        LocalDateTime now = LocalDateTime.now();
+        //order must be in CREATED state and expired
+        //release reserved quantity for each item in the order from inventory
+        //update order status to EXPIRED and set updated_at to current time
+
+        return Mono.error(new UnsupportedOperationException("Not yet implemented"));
+
+        /*LocalDateTime now = LocalDateTime.now();
         return orderRepository.findByStatusAndExpiresAtLessThan(OrderStatus.CREATED, now)
                 .flatMap(order -> {
                     // Release stock for each item in the order
@@ -174,6 +147,6 @@ public class OrderService {
                                 return orderRepository.save(order);
                             }));
                 })
-                .then();
+                .then();*/
     }
 }

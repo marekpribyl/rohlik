@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
+
+    Mono<Order> findByOrderNumber(String orderNumber);
     
     @Modifying
     @Query("UPDATE orders SET status = :status, paid_at = :paidAt WHERE id = :id AND status = 'CREATED'")
