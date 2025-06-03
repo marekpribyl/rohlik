@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @Transactional
-public interface ProductRepository extends ReactiveCrudRepository<Product, Long> {
+public interface ProductRepository extends ReactiveCrudRepository<Product, Long>,ProductRepositoryExtension {
 
     Mono<Product> findBySku(String sku);
 

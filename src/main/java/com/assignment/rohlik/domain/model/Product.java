@@ -101,6 +101,13 @@ public class Product {
         return reservedQuantity > 0;
     }
 
+    public void reserve(int quantity) {
+        if (quantity > getAvailableQuantity()) {
+            throw new IllegalArgumentException("There is not enough stock of [%s] to reserve [%d] items".formatted(sku, quantity));
+        }
+        this.reservedQuantity += quantity;
+    }
+
     public Product updateNameAndPrice(String name, BigDecimal price) {
         this.name = name;
         this.price = price;
