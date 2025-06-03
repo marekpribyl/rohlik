@@ -4,10 +4,12 @@ import com.assignment.rohlik.api.model.NewProductDto;
 import com.assignment.rohlik.api.model.ProductDto;
 import com.assignment.rohlik.api.model.StockInfoDto;
 import com.assignment.rohlik.domain.model.Product;
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+@Mapper
 public interface ProductMapper {
     
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);

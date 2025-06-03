@@ -108,6 +108,17 @@ public class Product {
         this.reservedQuantity += quantity;
     }
 
+    public Product releaseReservedStock(int quantity) {
+        reservedQuantity = reservedQuantity - quantity;
+        return this;
+    }
+
+    public Product removeFromStock(int quantity) {
+        stockQuantity = stockQuantity - quantity;
+        reservedQuantity = reservedQuantity - quantity;
+        return this;
+    }
+
     public Product updateNameAndPrice(String name, BigDecimal price) {
         this.name = name;
         this.price = price;

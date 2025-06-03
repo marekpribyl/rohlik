@@ -3,7 +3,9 @@ package com.assignment.rohlik.api;
 import com.assignment.rohlik.api.mapper.OrderMapper;
 import com.assignment.rohlik.api.model.NewOrderDto;
 import com.assignment.rohlik.api.model.OrderDto;
-import com.assignment.rohlik.domain.OrderService;
+import com.assignment.rohlik.api.model.OrderStatusUpdateDto;
+import com.assignment.rohlik.domain.OrderProcessing;
+import com.assignment.rohlik.domain.model.OrderStatus;
 import com.assignment.rohlik.infrastructure.persistence.OrderRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,9 @@ public class OrdersController implements OrdersApi {
 
     private final OrderRepository orderRepository;
 
-    private final OrderService orderService;
+    private final OrderProcessing orderService;
 
-    public OrdersController(OrderRepository orderRepository, OrderService orderService) {
+    public OrdersController(OrderRepository orderRepository, OrderProcessing orderService) {
         this.orderRepository = orderRepository;
         this.orderService = orderService;
     }
@@ -26,7 +28,7 @@ public class OrdersController implements OrdersApi {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseEntity<OrderDto>> createOrder(@Valid @RequestBody NewOrderDto newOrder) {
-        return orderService.createOrder(newOrder.items())
+        return orderService.createOrder(newOrder.itemsAsMap())
                 .map(OrderMapper.INSTANCE::toApi)
                 .map(order -> ResponseEntity.status(HttpStatus.CREATED).body(order));
     }
@@ -39,33 +41,11 @@ public class OrdersController implements OrdersApi {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}/pay")
-    public Mono<ResponseEntity<OrderDto>> payOrder(@PathVariable Long id) {
-        return orderService.payOrder(id)
-                .map(OrderMapper.INSTANCE::toApi)
-                .map(ResponseEntity::ok)
-                .onErrorResume(e -> {
-                    if (e instanceof IllegalStateException) {
-                        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
-                                .header("X-Error-Message", e.getMessage())
-                                .build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
+    @Override
+    public Mono<ResponseEntity<Void>> updateStatus(String orderNumber, OrderStatusUpdateDto status) {
+        OrderStatus targetStatus = OrderStatus.valueOf(status.name());
+        return orderService.statusChange(orderNumber, targetStatus)
+                .map(orderDto -> ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{id}/cancel")
-    public Mono<ResponseEntity<OrderDto>> cancelOrder(@PathVariable Long id) {
-        return orderService.cancelOrder(id)
-                .map(OrderMapper.INSTANCE::toApi)
-                .map(ResponseEntity::ok)
-                .onErrorResume(e -> {
-                    if (e instanceof IllegalStateException) {
-                        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
-                                .header("X-Error-Message", e.getMessage())
-                                .build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
-    }
 }

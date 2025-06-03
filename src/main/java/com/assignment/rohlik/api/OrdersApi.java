@@ -1,7 +1,8 @@
 package com.assignment.rohlik.api;
 
-import com.assignment.rohlik.api.model.OrderDto;
 import com.assignment.rohlik.api.model.NewOrderDto;
+import com.assignment.rohlik.api.model.OrderDto;
+import com.assignment.rohlik.api.model.OrderStatusUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,29 +45,13 @@ public interface OrdersApi {
             @PathVariable String orderNumber
     );
 
-    @Operation(summary = "Pay for an order", description = "Marks an order as paid")
+    @Operation(summary = "Updates order status", description = "To be used for payment, cancellation or expiration")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Order paid successfully", 
-                    content = @Content(schema = @Schema(implementation = OrderDto.class))),
-            @ApiResponse(responseCode = "404", description = "Order not found"),
-            @ApiResponse(responseCode = "409", description = "Order is in invalid state or has expired"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "409", description = "Transition to the provided state is not allowed"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    @PostMapping("/{id}/pay")
-    Mono<ResponseEntity<OrderDto>> payOrder(
-            @Parameter(description = "ID of the order to pay", required = true) 
-            @PathVariable Long id);
+    @PutMapping("/{orderNumber}/status/{status}")
+    Mono<ResponseEntity<Void>> updateStatus(@PathVariable String orderNumber, @PathVariable OrderStatusUpdateDto status);
 
-    @Operation(summary = "Cancel an order", description = "Cancels an order and releases reserved stock")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Order canceled successfully", 
-                    content = @Content(schema = @Schema(implementation = OrderDto.class))),
-            @ApiResponse(responseCode = "404", description = "Order not found"),
-            @ApiResponse(responseCode = "409", description = "Order is in invalid state"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping("/{id}/cancel")
-    Mono<ResponseEntity<OrderDto>> cancelOrder(
-            @Parameter(description = "ID of the order to cancel", required = true) 
-            @PathVariable Long id);
 }

@@ -1,5 +1,6 @@
 package com.assignment.rohlik.domain.model;
 
+import com.assignment.rohlik.domain.InvalidOrderStateException;
 import com.assignment.rohlik.infrastructure.persistence.WithEntityCallback;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,17 +14,21 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+import static com.assignment.rohlik.support.CollectionUtil.nullSafeStream;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Arrays.asList;
 import static java.util.List.copyOf;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
 
 @Table("orders")
-public class Order implements WithEntityCallback {
+public class Order implements WithEntityCallback<Order> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -56,7 +61,7 @@ public class Order implements WithEntityCallback {
     public Order(List<OrderItem> items) {
         this.status = OrderStatus.CREATED;
         this.createdAt = OffsetDateTime.now();
-        //TODO order number generator
+        //TODO better order number generator
         Random random = new Random();
         this.orderNumber = createdAt.format(ofPattern("yyyyMMdd-HHmmssSSS-")) + String.format("%03d", random.nextInt(1000));
         this.expiresAt = this.createdAt.plusMinutes(30); //TODO configurable Orders expire after 30 minutes if unpaid
@@ -73,7 +78,6 @@ public class Order implements WithEntityCallback {
         );
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -86,7 +90,7 @@ public class Order implements WithEntityCallback {
         return orderNumber;
     }
 
-    public void  setOrderNumber(final String orderNumber) {
+    public void setOrderNumber(final String orderNumber) {
         this.orderNumber = orderNumber;
     }
 
@@ -118,7 +122,6 @@ public class Order implements WithEntityCallback {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and setters for items
     public List<OrderItem> getItems() {
         return items;
     }
@@ -127,18 +130,17 @@ public class Order implements WithEntityCallback {
         this.items = items;
     }
 
-    public void paid() {
-        this.status = OrderStatus.PAID;
-        this.updatedAt = OffsetDateTime.now();
+    private boolean isInTerminalState() {
+        return !status.equals(OrderStatus.CREATED);
     }
 
-    public void cancel() {
-        this.status = OrderStatus.CANCELED;
+    public Order toState(OrderStatus newStatus) {
+        if (isInTerminalState()) {
+            throw new InvalidOrderStateException("Cannot change status of an order in terminal state [%s]".formatted(status));
+        }
+        this.status = newStatus;
         this.updatedAt = OffsetDateTime.now();
-    }
-
-    public void expire() {
-        this.status = OrderStatus.EXPIRED;
+        return this;
     }
 
     public boolean isExpired() {
@@ -170,13 +172,28 @@ public class Order implements WithEntityCallback {
     }
 
     @Override
-    public Mono afterConvertCallback(SqlIdentifier tableName) {
+    public Mono<Order> afterConvertCallback(SqlIdentifier tableName) {
         return Mono.just(readJson());
     }
 
     @Override
-    public Mono beforeConvertCallback(SqlIdentifier tableName) {
+    public Mono<Order> beforeConvertCallback(SqlIdentifier tableName) {
         return Mono.just(writeJson());
+    }
+
+    public Collection<String> getSkus() {
+        return nullSafeStream(items)
+            .map(OrderItem::getSku)
+            .toList();
+    }
+
+    public Map<String, Integer> itemsSkuAndQuantity() {
+        return nullSafeStream(items)
+                .collect(toMap(
+                        OrderItem::getSku,
+                        OrderItem::getQuantity,
+                        Integer::sum
+                ));
     }
 
 }
