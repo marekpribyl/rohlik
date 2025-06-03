@@ -1,7 +1,7 @@
 package com.assignment.rohlik.api;
 
 import com.assignment.rohlik.api.model.OrderDto;
-import com.assignment.rohlik.api.model.OrderRequestRecord;
+import com.assignment.rohlik.api.model.NewOrderDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,8 +16,21 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @Tag(name = "Orders", description = "Orders management API")
-@RequestMapping(value = "/api/orders/v1", produces = "application/json", consumes = "application/json")
+@RequestMapping(value = "/api/orders/v1", produces = "application/json")
 public interface OrdersApi {
+
+    @Operation(summary = "Create a new order", description = "Creates a new order with the given products and quantities")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Order created successfully",
+                    content = @Content(schema = @Schema(implementation = OrderDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or insufficient stock"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping(consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    Mono<ResponseEntity<OrderDto>> createOrder(
+            @Parameter(description = "Order to create", required = true)
+            @Valid @RequestBody NewOrderDto newOrder);
 
     @Operation(summary = "Get order by ID", description = "Returns a single order by its ID")
     @ApiResponses(value = {
@@ -25,23 +38,11 @@ public interface OrdersApi {
                     content = @Content(schema = @Schema(implementation = OrderDto.class))),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    @GetMapping("/{id}")
-    Mono<ResponseEntity<OrderDto>> getOrderById(
-            @Parameter(description = "ID of the order to retrieve", required = true) 
-            @PathVariable Long id);
-
-    @Operation(summary = "Create a new order", description = "Creates a new order with the given products and quantities")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Order created successfully", 
-                    content = @Content(schema = @Schema(implementation = OrderDto.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input or insufficient stock"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    Mono<ResponseEntity<OrderDto>> createOrder(
-            @Parameter(description = "Order to create", required = true) 
-            @Valid @RequestBody OrderRequestRecord orderRequestRecord);
+    @GetMapping("/{orderNumber}")
+    Mono<ResponseEntity<OrderDto>> getOrderByOrderNumber(
+            @Parameter(description = "Order number to retrieve", required = true)
+            @PathVariable String orderNumber
+    );
 
     @Operation(summary = "Pay for an order", description = "Marks an order as paid")
     @ApiResponses(value = {
