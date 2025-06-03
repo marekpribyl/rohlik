@@ -1,7 +1,6 @@
 package com.assignment.rohlik.domain;
 
 import com.assignment.rohlik.domain.model.Product;
-import com.assignment.rohlik.infrastructure.persistence.OrderItemRepository;
 import com.assignment.rohlik.infrastructure.persistence.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,11 +11,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private final OrderItemRepository orderItemRepository;
-
-    public ProductService(ProductRepository productRepository, OrderItemRepository orderItemRepository) {
+    public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.orderItemRepository = orderItemRepository;
     }
 
     public Mono<Product> getProductById(Long id) {
