@@ -14,13 +14,13 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import static com.assignment.rohlik.support.CollectionUtil.nullSafeStream;
 import static java.time.format.DateTimeFormatter.ofPattern;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Arrays.asList;
 import static java.util.List.copyOf;
 import static java.util.Objects.isNull;
@@ -57,24 +57,23 @@ public class Order implements WithEntityCallback<Order> {
     private List<OrderItem> items;
 
 
-    // Constructors
-    public Order(List<OrderItem> items) {
+    public Order(List<OrderItem> items, Long expiresInMillis) {
         this.status = OrderStatus.CREATED;
         this.createdAt = OffsetDateTime.now();
         //TODO better order number generator
         Random random = new Random();
         this.orderNumber = createdAt.format(ofPattern("yyyyMMdd-HHmmssSSS-")) + String.format("%03d", random.nextInt(1000));
-        this.expiresAt = this.createdAt.plusMinutes(30); //TODO configurable Orders expire after 30 minutes if unpaid
+        this.expiresAt = this.createdAt.plus(expiresInMillis, MILLIS);
         this.items = copyOf(requireNonNull(items));
     }
 
     //TODO @PersistenceCreator
     public Order() {}
 
-    public static Order fromProductsForOrder(List<ProductForOrder> items) {
+    public static Order fromProductsForOrder(List<ProductForOrder> items, Long expiresInMillis) {
         return new Order(items.stream()
             .map(OrderItem::fromProductForOrder)
-            .toList()
+            .toList(), expiresInMillis
         );
     }
 
@@ -138,13 +137,10 @@ public class Order implements WithEntityCallback<Order> {
         if (isInTerminalState()) {
             throw new InvalidOrderStateException("Cannot change status of an order in terminal state [%s]".formatted(status));
         }
+        //TODO there is no guard for transition to EXPIRED based on expiresAt - do we want to enforce it here?
         this.status = newStatus;
         this.updatedAt = OffsetDateTime.now();
         return this;
-    }
-
-    public boolean isExpired() {
-        return OffsetDateTime.now().isAfter(expiresAt) && status == OrderStatus.CREATED;
     }
 
     public BigDecimal getTotalPrice() {
@@ -179,12 +175,6 @@ public class Order implements WithEntityCallback<Order> {
     @Override
     public Mono<Order> beforeConvertCallback(SqlIdentifier tableName) {
         return Mono.just(writeJson());
-    }
-
-    public Collection<String> getSkus() {
-        return nullSafeStream(items)
-            .map(OrderItem::getSku)
-            .toList();
     }
 
     public Map<String, Integer> itemsSkuAndQuantity() {

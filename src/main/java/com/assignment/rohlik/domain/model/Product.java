@@ -31,9 +31,7 @@ public class Product {
     @Column("price")
     private BigDecimal price;
 
-    // Constructors
-    public Product() {
-    }
+    public Product() {}
 
     public Product(String sku, String name, BigDecimal price, int stockQuantity) {
         this.sku = sku;
@@ -43,7 +41,6 @@ public class Product {
         this.reservedQuantity = 0;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -80,7 +77,7 @@ public class Product {
         return reservedQuantity;
     }
 
-    public Product setReservedQuantity(final Integer reservedQuantity) {
+    public Product setReservedQuantity(Integer reservedQuantity) {
         this.reservedQuantity = reservedQuantity;
         return this;
     }
@@ -109,7 +106,7 @@ public class Product {
     }
 
     public Product releaseReservedStock(int quantity) {
-        reservedQuantity = reservedQuantity - quantity;
+        this.reservedQuantity = this.reservedQuantity - quantity;
         return this;
     }
 

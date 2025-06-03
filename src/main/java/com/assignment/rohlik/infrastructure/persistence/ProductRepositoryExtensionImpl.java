@@ -4,12 +4,13 @@ import com.assignment.rohlik.domain.model.ProductForOrder;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Repository
 public class ProductRepositoryExtensionImpl implements ProductRepositoryExtension {
@@ -23,7 +24,7 @@ public class ProductRepositoryExtensionImpl implements ProductRepositoryExtensio
     @Override
     @Transactional
     public Flux<ProductForOrder> findForOrder(Map<String, Integer> orderItems) {
-        if (CollectionUtils.isEmpty(orderItems)) {
+        if (isEmpty(orderItems)) {
             return Flux.empty();
         }
 

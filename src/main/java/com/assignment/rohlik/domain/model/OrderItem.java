@@ -14,8 +14,7 @@ public class OrderItem {
     
     private BigDecimal pricePerUnit;
 
-    public OrderItem() {
-    }
+    public OrderItem() {}
 
     public OrderItem(String sku, String name, Integer quantity, BigDecimal pricePerUnit) {
         this.sku = sku;

@@ -36,17 +36,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidOrderStateException.class)
-    public Mono<ResponseEntity<Map<String, Object>>> handleInvalidOrderStateException(InvalidOrderStateException ex) {
-        LOG.error("Invalid order state: {}", ex.getOrder());
+    public Mono<ResponseEntity<String>> handleInvalidOrderStateException(InvalidOrderStateException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("message", ex.getMessage());
-        body.put("orderId", ex.getOrder().getId());
-        body.put("orderStatus", ex.getOrder().getStatus());
-        if (ex.getRequiredStatus() != null) {
-            body.put("requiredStatus", ex.getRequiredStatus());
-        }
 
-        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(body));
+        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -89,4 +83,5 @@ public class GlobalExceptionHandler {
 
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body));
     }
+
 }

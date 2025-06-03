@@ -45,7 +45,7 @@ public interface OrdersApi {
             @PathVariable String orderNumber
     );
 
-    @Operation(summary = "Updates order status", description = "To be used for payment, cancellation or expiration")
+    @Operation(summary = "Update order status", description = "To be used for payment, cancellation or expiration")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "409", description = "Transition to the provided state is not allowed"),
