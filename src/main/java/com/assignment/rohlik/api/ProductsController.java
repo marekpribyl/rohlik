@@ -27,7 +27,7 @@ public class ProductsController implements ProductsApi {
     }
 
     @GetMapping
-    public Mono<ProductsDto> getAllProducts(int offset, int count) {
+    public Mono<ProductsDto> getAllProducts() {
         return productRepository.findAll()
                 .map(ProductMapper.INSTANCE::toApi)
                 .collectList()

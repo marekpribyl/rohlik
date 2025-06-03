@@ -47,7 +47,7 @@ public class OrderProcessing {
                         .then(Mono.just(productForOrder))
                 )
                 .collectList()
-                .map(productForOrders -> fromProductsForOrder(productForOrders, expiresInMillis))
+                .map(productsForOrder -> fromProductsForOrder(productsForOrder, expiresInMillis))
                 .flatMap(orderRepository::save);
     }
 
@@ -73,9 +73,10 @@ public class OrderProcessing {
     }
 
     private Mono<? extends Order> inventoryClearance(Order order) {
-        return productRepository.findForOrder(order.itemsSkuAndQuantity())
+        Map<String, Integer> orderItems = order.itemsSkuAndQuantity();
+        return productRepository.findForOrder(orderItems)
                 //FIXME this is messy code hard to follow, refactor it
-                .map(product -> order.getStatus().doOnProduct().apply(product, order.itemsSkuAndQuantity().get(product.getSku())))
+                .map(product -> order.getStatus().doOnProduct().apply(product, orderItems.get(product.getSku())))
                 .flatMap(productRepository::save) //TODO this is suboptimal...
                 .then(Mono.just(order));
     }

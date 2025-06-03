@@ -21,13 +21,13 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = "/api/products/v1", produces = "application/json")
 public interface ProductsApi {
 
-    @Operation(summary = "Get all products", description = "Returns a list of all products")
+    @Operation(summary = "Get all products", description = "Returns a list of all products (no paging available)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation", 
                     content = @Content(schema = @Schema(implementation = ProductsDto.class)))
     })
     @GetMapping
-    Mono<ProductsDto> getAllProducts(int offset, int count);
+    Mono<ProductsDto> getAllProducts();
 
     @Operation(summary = "Get product by SKU", description = "Returns a single product by its SKU")
     @ApiResponses(value = {
