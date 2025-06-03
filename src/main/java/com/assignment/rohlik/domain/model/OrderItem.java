@@ -1,60 +1,53 @@
 package com.assignment.rohlik.domain.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Table("order_items")
+import java.math.BigDecimal;
+
 public class OrderItem {
-    @Id
-    private Long id;
+
+    private String sku;
+
+    private String name;
     
-    @Column("order_id")
-    private Long orderId;
-    
-    @Column("product_id")
-    private Long productId;
-    
-    @Column("quantity")
     private Integer quantity;
     
-    @Column("price_per_unit")
-    private java.math.BigDecimal pricePerUnit;
+    private BigDecimal pricePerUnit;
 
-    // Constructors
     public OrderItem() {
     }
 
-    public OrderItem(Long orderId, Long productId, Integer quantity, java.math.BigDecimal pricePerUnit) {
-        this.orderId = orderId;
-        this.productId = productId;
+    public OrderItem(String sku, String name, Integer quantity, BigDecimal pricePerUnit) {
+        this.sku = sku;
+        this.name = name;
         this.quantity = quantity;
         this.pricePerUnit = pricePerUnit;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public static OrderItem fromProductForOrder(ProductForOrder productForOrder) {
+        return new OrderItem(
+                productForOrder.getSku(),
+                productForOrder.getName(),
+                productForOrder.getRequestedQuantity(),
+                productForOrder.getPrice()
+        );
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getSku() {
+        return sku;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public String getName() {
+        return name;
     }
 
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public OrderItem setName(final String name) {
+        this.name = name;
+        return this;
     }
 
     public Integer getQuantity() {
@@ -65,16 +58,17 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public java.math.BigDecimal getPricePerUnit() {
+    public BigDecimal getPricePerUnit() {
         return pricePerUnit;
     }
 
-    public void setPricePerUnit(java.math.BigDecimal pricePerUnit) {
+    public void setPricePerUnit(BigDecimal pricePerUnit) {
         this.pricePerUnit = pricePerUnit;
     }
-    
-    // Business methods
-    public java.math.BigDecimal getTotalPrice() {
-        return pricePerUnit.multiply(new java.math.BigDecimal(quantity));
+
+    @JsonIgnore
+    public BigDecimal getTotalPrice() {
+        return pricePerUnit.multiply(new BigDecimal(quantity));
     }
+
 }
